@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import { useChatStore } from '../stores/chatStore';
-import CardUser from '../ui/CardUser.vue';
+import { useChatStore } from '../../stores/chatStore';
+import CardUser from '../../ui/CardUser.vue';
 export default {
     components : {
       CardUser

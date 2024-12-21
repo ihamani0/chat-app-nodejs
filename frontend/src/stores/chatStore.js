@@ -10,6 +10,7 @@ export const useChatStore = defineStore('chat' , {
         ] ,
         ActiveUser: null , // User currently being chatted with
         message : [], // Array to hold chat messages
+        isAuthenticated : false
     }),
     //getters : 
     getters : {

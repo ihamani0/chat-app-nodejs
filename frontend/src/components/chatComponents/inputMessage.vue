@@ -21,7 +21,7 @@
 
 <script>
 import {  ref, watch } from 'vue';
-import { useChatStore } from '../stores/chatStore';
+import { useChatStore } from '../../stores/chatStore';
 
 export default {
     setup () {

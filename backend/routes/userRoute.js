@@ -14,7 +14,10 @@ const uploadAvatar = createMulterStorage('avatar' , ['image/jpeg' , 'image/png']
 //method delete
 
 //method regiseter User 
-route.post('/register', uploadAvatar.single('avatar'), userController.Register)
+route.post('/register', uploadAvatar.single('avatar'), userController.Register);
+//method login User 
+route.post('/login', userController.Login);
+
 
 
 module.exports = route;
