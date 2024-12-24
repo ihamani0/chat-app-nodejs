@@ -7,7 +7,6 @@ const Register = async (req,res)=>{
         
         const {name , email , password} = req.body;
         const avatarPath = req.file.path;
-        console.log(avatarPath);
 
         //hashPassword
         const hashPassword = await bcrypt.hash(password, 10);
@@ -45,17 +44,27 @@ const Login = async (req,res)=>{
                 return res.status(401).json({ error: 'Invalid email or password' });
             }
 
+            //update user status
+            user.isOnline = true;
+            await user.save();
+            
+            
+            
             // Generate JWT
-            const token = jwt.sign({ userId: user._id, email: user.email },'K1ZibR13wTExt9zK', { expiresIn: '1h' });
-
-
+            const token = jwt.sign( {userId: user._id,
+                                    name: user.name,
+                                    email: user.email,
+                                    avatar: user.avatar, // Adjust path as needed
+                                    isOnline: user.isOnline,
+                                    },process.env.JWT_SECRET, { expiresIn: '1h' });
+            
              // Send JWT in HttpOnly cookie
                 return res.cookie('token', token, {
                             httpOnly: true,
                             secure: process.env.NODE_ENV === 'production', // Use Secure flag in production
                             maxAge: 3600000, // 1 hour
                             sameSite: 'Strict',
-                        }).status(200).json({ message: 'Login successful!' });
+                        }).status(200).json({ message: 'Login successful!'});
             
                 
 
@@ -72,7 +81,7 @@ const Me = async (req,res)=>{
     }
 
     try {
-        const user = jwt.verify(token,"K1ZibR13wTExt9zK");
+        const user = jwt.verify(token,process.env.JWT_SECRET);
         return res.status(200).json({user});
     } catch (error) {
         console.log(error);
@@ -81,7 +90,24 @@ const Me = async (req,res)=>{
 }
 
 const Logout = async (req,res)=>{
-    res.clearCookie('token').json({ message: 'Logged out!' });
+    const token = req.cookies.token;
+
+    if (token) {
+        try {
+            const { userId } = jwt.verify(token, 'K1ZibR13wTExt9zK');
+
+            // Update user status to offline
+            const user = await User.findById(userId);
+            if (user) {
+                user.isOnline = false;
+                await user.save();
+            }
+        } catch (error) {
+            console.log('Error during logout:', error.message);
+        }
+    }
+
+    res.clearCookie('token').status(200).json({ message: 'Logged out!' });
     
 }
 module.exports = {

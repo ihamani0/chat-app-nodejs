@@ -19,11 +19,11 @@
 
         <!-- Right Section: App Title -->
         <div>
-
-        <span v-if="activeUserReactive"
-            :class="activeUserReactive.isOnlin ? 'bg-green-500' : 'bg-gray-400'"
-            class="bottom-0 right-0 block w-3 h-3 rounded-full ring-2 ring-white"
-        ></span>
+            <img
+                :src="user.avatar"
+                alt="User Avatar"
+                class="w-12 h-12 rounded-full border-2 border-gray-200"
+            />
         </div>
     </header>
 </template>
@@ -31,9 +31,11 @@
 <script>
 import {  ref, watch } from 'vue';
 import { useChatStore } from '../../stores/chatStore'
+import { useauthStore } from '../../stores/authStore'
 export default {
     setup () {
         const ChatStore = useChatStore();
+        const authStore = useauthStore();
 
         let activeUserReactive = ref(ChatStore.ActiveUser);
 
@@ -43,7 +45,7 @@ export default {
                 activeUserReactive.value = newActiveUser;
             }
         )
-        return {activeUserReactive}
+        return {activeUserReactive , user: authStore.user}
     }
 }
 </script>
