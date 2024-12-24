@@ -3,25 +3,24 @@ import { createRouter, createWebHistory } from "vue-router"
 
 import { useauthStore } from "../stores/authStore";
 
-import Register from "../components/auth/RegisterUser.vue";
-import Login from "../components/auth/LoginUser.vue";
-import Chat from "../components/ChatApp.vue";
+
+
 
 
 
 
 const routes = [
     { path: '/', redirect: '/chat' },
-    { path: "/register", component: Register },
-    { path: "/login", component: Login },
+    { path: "/register", component: () => import('../components/auth/RegisterUser.vue') },
+    { path: "/login", component: () => import('../components/auth/LoginUser.vue') },
     {
         path: "/chat",
-        component: Chat,
-        beforeEnter: (to, from, next) => {
-            const authStore = useauthStore();
-            if (!authStore.isAuthenticated) next("/login");
-            else next();
-        },
+        component: ()=> import('../components/ChatApp.vue'),
+        meta: { requiresAuth: true },
+    },
+    { 
+        path: '/:pathMatch(.*)*', 
+        component: () => import('../components/_404.vue') 
     },
 ];
 
@@ -30,4 +29,20 @@ const router = createRouter({
     routes,
 });
 
+router.beforeEach(async (to, from, next) => {
+
+    const authStore = useauthStore();
+
+    // Ensure auth state is checked before navigating
+    if (authStore.isAuthenticated === false && to.meta.requiresAuth) {
+        await authStore.verifyAuth(); // Verify auth status
+    }
+
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        next('/login'); // Redirect to login if not authenticated
+    } else {
+        next(); // Proceed to route
+    }
+
+});
 export default router;

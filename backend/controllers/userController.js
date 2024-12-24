@@ -36,35 +36,57 @@ const Login = async (req,res)=>{
         // Find user by email
             const user = await User.findOne({ email });
             if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+                return res.status(401).json({ error: 'Invalid email or password' });
             }
 
             // Compare passwords
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+                return res.status(401).json({ error: 'Invalid email or password' });
             }
 
             // Generate JWT
-            const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user._id, email: user.email },'K1ZibR13wTExt9zK', { expiresIn: '1h' });
 
 
              // Send JWT in HttpOnly cookie
-                res.cookie('token', token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production', // Use Secure flag in production
-                    maxAge: 3600000, // 1 hour
-                    sameSite: 'Strict',
-                });
+                return res.cookie('token', token, {
+                            httpOnly: true,
+                            secure: process.env.NODE_ENV === 'production', // Use Secure flag in production
+                            maxAge: 3600000, // 1 hour
+                            sameSite: 'Strict',
+                        }).status(200).json({ message: 'Login successful!' });
             
-                res.status(200).json({ message: 'Login successful!' });
-
+                
 
     } catch (error) {
-        res.status(500).json({ error: 'Error logging in: ' + error.message });
+            return res.status(500).json({ error: 'Error logging in: ' + error.message });
     }
 }
 
+const Me = async (req,res)=>{
+
+    const token = req.cookies.token;
+    if(!token){
+        return res.status(401).json({error: 'Not authenticated'});
+    }
+
+    try {
+        const user = jwt.verify(token,"K1ZibR13wTExt9zK");
+        return res.status(200).json({user});
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json({ message: 'Unauthorized' , error:error.message });;
+    }
+}
+
+const Logout = async (req,res)=>{
+    res.clearCookie('token').json({ message: 'Logged out!' });
+    
+}
 module.exports = {
-    Register,Login
+    Register,
+    Login,
+    Logout,
+    Me
 }

@@ -10,13 +10,18 @@
 
       </card-user>
 
+      <button class="p-2 bg-red-500 text-white rounded-md w-full mt-4" @click="logout">
+        logout
+      </button> 
 
   </aside>
 </template>
 
 <script>
 import { useChatStore } from '../../stores/chatStore';
+import { useauthStore } from '../../stores/authStore';
 import CardUser from '../../ui/CardUser.vue';
+import { useRouter } from 'vue-router';
 export default {
     components : {
       CardUser
@@ -24,6 +29,8 @@ export default {
     setup () {
 
         const ChatStore = useChatStore();
+        const authStore = useauthStore();
+        const router = useRouter();
         
         //must the name of variable match the same proprty 
         const {users} = ChatStore ;
@@ -32,7 +39,11 @@ export default {
         const selectUser= (user)=>{
           ChatStore.setActiveUser(user);
         }
-        return { users , selectUser}
+        const logout = ()=>{
+          authStore.logout();
+          router.push('/login');
+        }
+        return { users , selectUser ,logout};
     }
 }
 </script>

@@ -30,10 +30,11 @@
 <script>
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
-import axios from 'axios';
+import {useauthStore} from '../../stores/authStore';
 export default {
     setup(){
 
+        const authStore = useauthStore();
         const router = useRouter();
         const form = ref({name: "", email: "", password: "", avatar: null})
 
@@ -53,29 +54,13 @@ export default {
                 avatar : form.value.avatar,
             }
 
-            try {
-                let response = await axios.post('/register' , data ,  {
-                    headers : {
-                        "Content-Type" : "multipart/form-data"
-                    }
-                } )
-                
-                if(response){
-                    console.log(response);
-                    router.push('/login')
-                }
-
-            } catch (error) {
-                console.log(error);
-            }
-
-
-            //router.push('/login')
+            authStore.register(data);
+            router.push('/login')
         } 
 
 
         return{
-            form ,register , onFileChange
+            form , register , onFileChange
         }
     }
 };

@@ -18,36 +18,28 @@
 </template>
 
 <script>
-import axios from 'axios';
+
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useauthStore } from '../../stores/authStore';
 export default {
 setup(){
 
+    const authStore = useauthStore();
     const router = useRouter();
     const form = ref({email: "", password: ""})
 
     const login = async ()=>{
 
-        let data = {
+            let data = {
                 email : form.value.email,
                 password : form.value.password,
             }
 
-            try {
-                let response = await axios.post('/login' , data ,  {
-                    headers : {
-                        "Content-Type" : "application/json"
-                    }
-                } )
-                
-                console.log(response);
-            } catch (error) {
-                console.log(error);
-            }
+            authStore.login(data);
 
-        //router.push('/chat')
-    }
+            router.push('/chat');
+            }
     return{
         form ,login
     }

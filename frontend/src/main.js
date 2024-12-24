@@ -4,6 +4,14 @@ import './axios'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 import router from './routes/index'
+import {useauthStore} from './stores/authStore'
+
+const app = createApp(App);
+app.use(createPinia())
+app.use(router)
 
 
-createApp(App).use(createPinia()).use(router).mount('#app')
+const authStore = useauthStore();
+
+authStore.verifyAuth();
+app.mount('#app')
