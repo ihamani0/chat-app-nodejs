@@ -94,7 +94,7 @@ const Logout = async (req,res)=>{
 
     if (token) {
         try {
-            const { userId } = jwt.verify(token, 'K1ZibR13wTExt9zK');
+            const { userId } = jwt.verify(token, process.env.JWT_SECRET);
 
             // Update user status to offline
             const user = await User.findById(userId);
