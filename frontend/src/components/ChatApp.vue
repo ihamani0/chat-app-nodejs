@@ -22,7 +22,7 @@ export default {
         }) 
 
         onUnmounted(() => {
-            socketStore.disconnectSocket();
+            socketStore.deconnectedSocket();
         });
     }
 

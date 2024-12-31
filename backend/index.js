@@ -51,9 +51,10 @@ io.on('connection', (socket) => {
         console.log(`User ${socket.id} joined room: ${room}`);
     });
 
-    socket.on('sendMessage', ({ room, message }) => {
+    socket.on('sendMessage', ({ room, message  }) => {
+        message.isMine = false;
         io.to(room).emit('receiveMessage', message);
-        console.log(`Message sent to room ${room}: ${message}`);
+        console.log(message)
     });
 
     

@@ -1,16 +1,15 @@
+import axios from "axios";
 import { defineStore } from "pinia";
-
+import { useauthStore } from "./authStore";
+import {useSocketStore} from './socketStore'
 
 export const useChatStore = defineStore('chat' , {
     //state :
     state : () => ({
-        users : [
-            {id:1, name:'Hamani' , isOnlin:true , avatar : "https://via.placeholder.com/150" , lastMessage :'Hello'},
-            {id:2, name:'issam' , isOnlin:false ,avatar : "https://via.placeholder.com/150" , lastMessage :'Hello'},
-        ] ,
+        users : [] ,
         ActiveUser: null , // User currently being chatted with
         message : [], // Array to hold chat messages
-        isAuthenticated : false
+        
     }),
     //getters : 
     getters : {
@@ -22,12 +21,49 @@ export const useChatStore = defineStore('chat' , {
     } ,
     //action:
     actions : {
-        setActiveUser(user){
-                this.ActiveUser = user ;
+        setActiveUser(target_user){
+                //1- call the current user from authStore
+                const authStore = useauthStore();
+                const current_user = authStore.user;
+                //2-generate the iunique room and joining room
+                const socketStore = useSocketStore();
+                socketStore.generatUniqueRoom(current_user , target_user);
+
+                //set active user 
+                this.ActiveUser = target_user ;
         },
         saveMessage(msg){
-            this.message.push(msg);
+            //emit send message using socket 
+            const socketStore = useSocketStore();
+
             
+            socketStore.sendMessage(socketStore.room,msg);
+            
+            this.message.push(msg);
+        } ,
+        reciveMessgae(message){
+            
+
+            const authStore = useauthStore();
+            //console.log(authStore.user.userId === message.senderId);
+
+            //verif y if the message is from server 
+            if(authStore.user.userId === message.senderId ) return;
+
+            console.log(message)
+            //add the message to the message array
+            this.message.push(message);
+        },
+        async fetchUsers(){
+            try {
+                const response = await axios.get("/get-users" ,{
+                    withCredentials: true // Include cookies in the request
+                });
+                this.users = response.data
+            } catch (error) { 
+                console.log(error)
+            }
         }
+
     }
 }) 

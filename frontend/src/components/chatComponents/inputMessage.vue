@@ -22,11 +22,13 @@
 <script>
 import {  ref, watch } from 'vue';
 import { useChatStore } from '../../stores/chatStore';
+import { useauthStore } from '../../stores/authStore';
 
 export default {
     setup () {
         
         const chatStore = useChatStore();
+        const authStore = useauthStore();
         const ActiveUser = ref(chatStore.ActiveUser)
 
         watch(
@@ -41,7 +43,8 @@ export default {
         let sendMessage = ()=>{
             if (ActiveUser.value) {
                 chatStore.saveMessage({
-                userId: chatStore.ActiveUser.id, // Ensure userId matches ActiveUser
+                senderId: authStore.user.userId,     
+                reciverId: chatStore.ActiveUser._id, // Ensure userId matches ActiveUser
                 text: newMessage.value,
                 isMine: true, // Indicate the message is sent by the current user
                 });

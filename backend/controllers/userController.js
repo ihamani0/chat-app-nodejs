@@ -110,9 +110,28 @@ const Logout = async (req,res)=>{
     res.clearCookie('token').status(200).json({ message: 'Logged out!' });
     
 }
+
+
+const fetchUsers = async (req,res)=>{
+    try {
+        const users = await User.find({ _id: { $ne: req.user._id } }).select('-password'); 
+        // Exclude current user and  passwords;
+        if(!users){
+            return res.status(401).json({message:"no User found"});
+        }
+
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch users" });
+    }
+
+}
+
 module.exports = {
     Register,
     Login,
     Logout,
-    Me
+    Me,
+    fetchUsers
 }

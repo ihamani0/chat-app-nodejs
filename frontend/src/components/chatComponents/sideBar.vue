@@ -22,6 +22,7 @@ import { useChatStore } from '../../stores/chatStore';
 import { useauthStore } from '../../stores/authStore';
 import CardUser from '../../ui/CardUser.vue';
 import { useRouter } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
 export default {
     components : {
       CardUser
@@ -33,8 +34,19 @@ export default {
         const router = useRouter();
         
         //must the name of variable match the same proprty 
-        const {users} = ChatStore ;
+        const  users  = ref(ChatStore.users) ;
 
+        //watch if ther change in list of user update components
+        watch(
+          ()=> ChatStore.users,
+          (newValue)=>{
+            users.value = newValue;
+          }
+        )
+        //fetch all users 
+        onMounted(()=>{
+          ChatStore.fetchUsers();
+        })
 
         const selectUser= (user)=>{
           ChatStore.setActiveUser(user);

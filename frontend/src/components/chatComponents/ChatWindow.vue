@@ -1,3 +1,4 @@
+
 <template>
     <div class="chat-body flex-1 p-4 bg-gray-50 rounded-lg shadow-inner overflow-y-auto">
         <!-- No Active User Message -->
@@ -25,13 +26,16 @@
 </template>
 
 <script>
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useChatStore } from "../../stores/chatStore"
+import { useSocketStore } from "../../stores/socketStore";
+import { useauthStore } from "../../stores/authStore";
 export default {
     setup() {
 
         const chatStore = useChatStore();
-
+        const socketStore = useSocketStore();
+        const authStore = useauthStore();
         let activeUserReactive = ref(chatStore.ActiveUser);
 
         watch(
@@ -41,10 +45,24 @@ export default {
             }
         )
 
+        onMounted(()=>{
+            socketStore.reciveMessgae();
+        })
+
 
         let userMessages = computed(() => {
             if (!activeUserReactive.value) return []; // If no active user, return an empty array
-            return chatStore.message.filter((msg) => msg.userId === activeUserReactive.value.id);
+
+            const target_userId = activeUserReactive.value._id;
+            const current_userId = authStore.user.userId;
+            console.log("current user :" ,current_userId )
+            console.log("target user :" ,target_userId )
+            return chatStore.message.filter((message) => {
+                return (
+                    (message.senderId === current_userId && message.reciverId === target_userId) ||
+                    (message.senderId === target_userId && message.reciverId === current_userId)
+                );
+            });
         });
 
         return {
